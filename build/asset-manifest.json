@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d53d6d15.css",
+    "main.js": "/static/js/main.31eedbf5.js",
+    "static/media/MINDS.png": "/static/media/MINDS.9967c8a4be2cc9c62102.png",
+    "static/media/bg.png": "/static/media/bg.894e0cb79db6e706b5d6.png",
+    "static/media/Redder.png": "/static/media/Redder.a978ddd5afff593f4ab2.png",
+    "static/media/team.jpeg": "/static/media/team.703f49bbffd27f963672.jpeg",
+    "static/media/UDLOGO.png": "/static/media/UDLOGO.109c15491529c8e9ace7.png",
+    "static/media/Vasanth.jpg": "/static/media/Vasanth.55d7f481ee628aaaf9c8.jpg",
+    "static/media/about.jpeg": "/static/media/about.a85b49bec9b386e0ce26.jpeg",
+    "static/media/plant.png": "/static/media/plant.e21a2f91ebe233b5ae52.png",
+    "index.html": "/index.html",
+    "main.d53d6d15.css.map": "/static/css/main.d53d6d15.css.map",
+    "main.31eedbf5.js.map": "/static/js/main.31eedbf5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d53d6d15.css",
+    "static/js/main.31eedbf5.js"
+  ]
+}
