@@ -173,16 +173,16 @@ const BarcodeScannerInput = ({ value, onChange, placeholder='Scan or enter barco
               className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
               type="button"
             >
-              <X size={16}/>
+              <X size={24}/>
             </button>
           )}
         </div>
         <button
           onClick={toggleScanner}
-          className={`flex items-center px-3 py-1 rounded text-sm text-white ${scanning ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`flex items-center px-3 py-2 rounded text-sm text-white ${scanning ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
           type="button"
         >
-          <Camera size={16} className="mr-1"/>{value ? 'Re-scan' : scanning ? 'Close' : 'Scan'}
+          <Camera size={24} className="mr-1"/>{value ? 'scan' : scanning ? 'Close' : 'Scan'}
         </button>
       </div>
       {error && <p className="text-red-500 text-xs">{error}</p>}

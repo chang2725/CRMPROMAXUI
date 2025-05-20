@@ -14,9 +14,9 @@ function Navbar() {
           {/* Desktop Nav */}
           <nav className="rounded-full shadow-md bg-white px-6 py-3 hidden md:flex items-center space-x-6 font-medium text-gray-800">
             <a href="/" className="hover:text-purple-600 transition">dashboard</a>
-            <a href="/Customer" className="hover:text-purple-600 transition">Customer</a>
-            <a href="#service" className="hover:text-purple-600 transition"> </a>
-            <a href="#Creations" className="hover:text-purple-600 transition">Our Creations</a>
+            <a href="/Customer" className="hover:text-purple-600 transition">Customer hub</a>
+            <a href="#service" className="hover:text-purple-600 transition"> Phone Recharge</a>
+            <a href="#Creations" className="hover:text-purple-600 transition">Loan Tracker</a>
             <a href="#career" className="hover:text-purple-600 transition">Career</a>
           </nav> 
           {/* Mobile Toggle */}
