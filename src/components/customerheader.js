@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { User, UserPlus, Users, LineChart } from 'lucide-react';
-
 const stats = [
     {
         title: 'Total Customers',
@@ -37,59 +36,53 @@ export default function CustomerHub() {
         date_of_birth: "",
         gender: "",
     });
-
-    const handleChange = (e) => {
-        setFormData((prev) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // Prepare data by converting empty strings to null
-  const payload = {
-    name: formData.name,
-    phone_number: formData.phone_number,
-    email: formData.email.trim() === "" ? null : formData.email,
-    date_of_birth: formData.date_of_birth === "" ? null : formData.date_of_birth,
-    gender: formData.gender.trim() === "" ? null : formData.gender,
+     const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/Customer/AddCustomer`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+        const payload = {
+            name: formData.name,
+            phone_number: formData.phone_number,
+            email: formData.email.trim() === "" ? null : formData.email,
+            date_of_birth: formData.date_of_birth === "" ? null : formData.date_of_birth,
+            gender: formData.gender.trim() === "" ? null : formData.gender,
+        };
 
-    if (response.ok) {
-      alert("Customer added successfully!");
-      setIsOpen(false);
-      setFormData({
-        name: "",
-        phone_number: "",
-        email: "",
-        date_of_birth: "",
-        gender: "",
-      });
-    } else {
-      alert("Failed to add customer");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Error adding customer");
-  }
-};
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_API_BASE_URL}/Customer/AddCustomer`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
-
-
+            if (response.ok) {
+                alert("Customer added successfully!");
+                setIsOpen(false);
+                setFormData({
+                    name: "",
+                    phone_number: "",
+                    email: "",
+                    date_of_birth: "",
+                    gender: "",
+                });
+            } else {
+                alert("Failed to add customer");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error adding customer");
+        }
+    };
 
     return (
         <div className="p-6 bg-white rounded-2xl shadow-md border border-blue-200 mx-auto mt-10">
@@ -120,8 +113,7 @@ export default function CustomerHub() {
                         <p className="text-xl font-semibold text-gray-800">{stat.value}</p>
                     </div>
                 ))}
-            </div>
-
+            </div> 
 
             {isOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
@@ -201,8 +193,6 @@ export default function CustomerHub() {
                     </div>
                 </div>
             )}
-
-
         </div>
     );
 }

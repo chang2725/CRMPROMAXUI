@@ -1,54 +1,141 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BarcodeScannerInput from '../components/BarcodeScannerInput';
 import axios from 'axios';
-import Navbar from '../Template/navbar';    
+import Navbar from '../Template/navbar';
 import CustomerHub from '../components/customerheader';
+import CustomerCard from '../Template/CustomerCard';
 
 function Customer() {
   const [barcodeValue, setBarcodeValue] = useState('');
-  
-  
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/Customer/GetbyId/` + barcodeValue);
+  const [customerId, setCustomerId] = useState('');
+  const [customers, setCustomers] = useState([]);
 
-    alert(`Form submitted: ${response.data.message}`);
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/Customer/getCustomerList`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setCustomers(data.data);
+        }
+      });
+  }, []);
+  const handleSubmitphone = async (phone) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/Customer/GetbyNumber/` + phone);
+      alert(`Form submitted: ${response.data.message}`);
+      var customer = response.data.data;
+      if (customer) {
+        setCustomers([customer]); // Update state with the fetched customer
+      } else {
+        alert("No customer found with this phone number");
+      }
+    } catch (error) {
+      console.error('API error:', error);
+      alert('Failed to submit the form');
+    }
+  };
+
+
+  const handleSubmit = async (value) => {
+  try {
+    const customer_id = value;
+
+    const matchedCustomer = customers.find(
+      (customer) => customer.customer_id === customer_id
+    );
+
+    if (matchedCustomer) {
+      console.log("Found customer:", matchedCustomer);
+      setCustomers([matchedCustomer]); 
+    } else {
+      alert("No customer found with this ID");
+    }
   } catch (error) {
-    console.error('API error:', error);
+    console.error('Error in handleSubmit:', error);
     alert('Failed to submit the form');
   }
-  };
-  
+};
+
+
+   useEffect(() => {
+  if (barcodeValue.length === 7) {
+    handleSubmit(barcodeValue);
+  }
+}, [barcodeValue]);
   return (
     <>
-    <Navbar></Navbar>
+      <Navbar></Navbar>
       {/* Main content with proper padding for fixed header */}
-      <main className="pt-32 px-6 mx-auto">
-       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md max-w-[600px] ml-auto p-2">
-  <div className="mb-4">
-    <label className="block text-gray-700 mb-2">Loyalty Card ID</label>
-    
-    <div className="flex gap-2">
-      <BarcodeScannerInput 
-        value={barcodeValue}
-        onChange={setBarcodeValue}
-        placeholder="Scan product barcode"
-        className="flex-1" // optional, for responsiveness
-      />
-      <button 
-        type="submit"
-        className="bg-green-600 text-white px-4 rounded hover:bg-green-700 h-[40px]"
-      >
-        Submit
-      </button>
-    </div>
-  </div>
-</form>
+      <main className="pt-28 px-6 mx-auto">
+        <div className="flex justify-between flex-wrap gap-4">
+          {/* Barcode Form */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // prevent page reload on manual submit
+              handleSubmit(barcodeValue);
+            }}
+            className="bg-white rounded-lg shadow-md p-2 flex-1 min-w-[280px]"
+          >
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Loyalty Card ID</label>
+              <div className="flex gap-2">
+                <BarcodeScannerInput
+                  value={barcodeValue}
+                  onChange={(value) => {
+                    setBarcodeValue(value);
 
-        <CustomerHub/>
-      </main>
+                    if (/^\d{6}$/.test(value)) {
+                      handleSubmit(value); // auto-submit when 6 digits
+                    }
+                  }}
+                  placeholder="Scan product barcode"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </form>
+
+          {/* Phone Number Form */}
+          <form
+            onSubmit={handleSubmitphone}
+            className="bg-white rounded-lg shadow-md p-2 flex-1 min-w-[280px]"
+          >
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2">Phone Number</label>
+              <div className="flex gap-2">
+                <input
+                  type="tel"
+                  value={customerId}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits
+                    if (/^\d*$/.test(value)) {
+                      setCustomerId(value);
+                       if (/^[6-9]\d{9}$/.test(value)) {
+                        handleSubmitphone(value); // pass value directly
+                      }
+                    }
+                  }}
+                  maxLength={10}
+                  placeholder="Enter phone number"
+                  className="flex-1 border border-gray-300 rounded px-4 py-2"
+                />
+
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <CustomerHub />
+
+        <div className="min-h-screen p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {customers.map((cust) => (
+              <CustomerCard key={cust.customer_id} customer={cust} />
+            ))}
+          </div>
+        </div>
+      </main >
     </>
   );
 }
