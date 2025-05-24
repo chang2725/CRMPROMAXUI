@@ -9,23 +9,33 @@ function Customer() {
   const [barcodeValue, setBarcodeValue] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [customers, setCustomers] = useState([]);
-
+  const [allCustomers, setAllCustomers] = useState([]);
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_BASE_URL}/Customer/getCustomerList`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 200) {
           setCustomers(data.data);
+          setAllCustomers(data.data); // save original
         }
       });
   }, []);
   const handleSubmitphone = async (phone) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/Customer/GetbyNumber/` + phone);
-      alert(`Form submitted: ${response.data.message}`);
-      var customer = response.data.data;
+      const existing = allCustomers.find(c => c.phone === phone);
+
+      if (existing) {
+        setCustomers([existing]);
+        return;
+      }
+
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/Customer/GetbyNumber/${phone}`);
+      const customer = response.data.data;
+
       if (customer) {
-        setCustomers([customer]); // Update state with the fetched customer
+        alert(`Form submitted: ${response.data.message}`);
+        setAllCustomers(prev => [...prev, customer]);
+        setCustomers([customer]);
       } else {
         alert("No customer found with this phone number");
       }
@@ -34,34 +44,25 @@ function Customer() {
       alert('Failed to submit the form');
     }
   };
+  
+  useEffect(() => {
+    if (barcodeValue.length === 7) {
+try {
+      const customer_id = barcodeValue;
+      const matchedCustomer = allCustomers.find(
+        (customer) => customer.customer_id === customer_id
+      );
 
-
-  const handleSubmit = async (value) => {
-  try {
-    const customer_id = value;
-
-    const matchedCustomer = customers.find(
-      (customer) => customer.customer_id === customer_id
-    );
-
-    if (matchedCustomer) {
-      console.log("Found customer:", matchedCustomer);
-      setCustomers([matchedCustomer]); 
-    } else {
-      alert("No customer found with this ID");
-    }
-  } catch (error) {
-    console.error('Error in handleSubmit:', error);
-    alert('Failed to submit the form');
-  }
-};
-
-
-   useEffect(() => {
-  if (barcodeValue.length === 7) {
-    handleSubmit(barcodeValue);
-  }
-}, [barcodeValue]);
+      if (matchedCustomer) {
+        setCustomers([matchedCustomer]);
+      } else {
+        alert("No customer found with this ID");
+      }
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+      alert('Failed to submit the form');
+    }    }
+  }, [barcodeValue, allCustomers]);
   return (
     <>
       <Navbar></Navbar>
@@ -70,10 +71,6 @@ function Customer() {
         <div className="flex justify-between flex-wrap gap-4">
           {/* Barcode Form */}
           <form
-            onSubmit={(e) => {
-              e.preventDefault(); // prevent page reload on manual submit
-              handleSubmit(barcodeValue);
-            }}
             className="bg-white rounded-lg shadow-md p-2 flex-1 min-w-[280px]"
           >
             <div className="mb-4">
@@ -83,10 +80,6 @@ function Customer() {
                   value={barcodeValue}
                   onChange={(value) => {
                     setBarcodeValue(value);
-
-                    if (/^\d{6}$/.test(value)) {
-                      handleSubmit(value); // auto-submit when 6 digits
-                    }
                   }}
                   placeholder="Scan product barcode"
                   className="flex-1"
@@ -111,7 +104,7 @@ function Customer() {
                     // Allow only digits
                     if (/^\d*$/.test(value)) {
                       setCustomerId(value);
-                       if (/^[6-9]\d{9}$/.test(value)) {
+                      if (/^[6-9]\d{9}$/.test(value)) {
                         handleSubmitphone(value); // pass value directly
                       }
                     }
@@ -129,7 +122,7 @@ function Customer() {
         <CustomerHub />
 
         <div className="min-h-screen p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {customers.map((cust) => (
               <CustomerCard key={cust.customer_id} customer={cust} />
             ))}
