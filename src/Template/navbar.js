@@ -13,11 +13,11 @@ function Navbar() {
           <div></div> 
           {/* Desktop Nav */}
           <nav className="rounded-full shadow-md bg-white px-6 py-3 hidden md:flex items-center space-x-6 font-medium text-gray-800">
-            <a href="/" className="hover:text-purple-600 transition">dashboard</a>
+            <a href="/" className="hover:text-purple-600 transition">Dashboard</a>
             <a href="/Customer" className="hover:text-purple-600 transition">Customer hub</a>
-            <a href="#service" className="hover:text-purple-600 transition"> Phone Recharge</a>
-            <a href="#Creations" className="hover:text-purple-600 transition">Loan Tracker</a>
-            <a href="#career" className="hover:text-purple-600 transition">Career</a>
+            <a href="/phonerecharge" className="hover:text-purple-600 transition"> Phone Recharge</a>
+            <a href="/vendor" className="hover:text-purple-600 transition">Vendor</a>
+            <a href="/cashflowdashboard" className="hover:text-purple-600 transition">Cashflow Dashboard</a>
           </nav> 
           {/* Mobile Toggle */}
           <div className="rounded-full shadow-md bg-white px-6 py-3 md:hidden">
@@ -32,11 +32,11 @@ function Navbar() {
         {/* Mobile Nav */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-[90px] w-[90%] mx-auto left-0 right-0 bg-white shadow-md rounded-xl px-6 py-4 text-center z-40 pointer-events-auto">
-            <a onClick={handleMobileLinkClick} href="#home" className="block py-2 text-gray-800 hover:text-purple-600">Home</a>
-            <a onClick={handleMobileLinkClick} href="#about" className="block py-2 text-gray-800 hover:text-purple-600">Who We Are</a>
-            <a onClick={handleMobileLinkClick} href="#service" className="block py-2 text-gray-800 hover:text-purple-600">What We Do</a>
-            <a onClick={handleMobileLinkClick} href="#Creations" className="block py-2 text-gray-800 hover:text-purple-600">Our Creations</a>
-            <a onClick={handleMobileLinkClick} href="#career" className="block py-2 text-gray-800 hover:text-purple-600">Career</a>
+            <a onClick={handleMobileLinkClick} href="/" className="block py-2 text-gray-800 hover:text-purple-600">Dashboard</a>
+            <a onClick={handleMobileLinkClick} href="/Customer" className="block py-2 text-gray-800 hover:text-purple-600">Customer hub</a>
+            <a onClick={handleMobileLinkClick} href="/phonerecharge" className="block py-2 text-gray-800 hover:text-purple-600">Phone Recharge</a>
+            <a onClick={handleMobileLinkClick} href="/vendor" className="block py-2 text-gray-800 hover:text-purple-600">Vendor</a>
+            <a onClick={handleMobileLinkClick} href="/career" className="block py-2 text-gray-800 hover:text-purple-600">Cashflow Dashboard</a>
           </div>
         )}
       </header> 
