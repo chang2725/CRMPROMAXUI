@@ -4,6 +4,7 @@ import Customer from './pages/customer';
 import PhoneRecharge from './pages/phonerecharge';
 import Vendor from './pages/vendor';
 import CashflowDashboard from './pages/Cashflow';
+import Dashboard from './pages/dashboard';
 
 function App() {
   
@@ -11,7 +12,7 @@ function App() {
     <>
     <Router>
       <Routes>
-        <Route path="/" element={<Customer />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/Customer" element={<Customer />} />
         <Route path="/phonerecharge" element={<PhoneRecharge />} />
         <Route path="/vendor" element={<Vendor />} />

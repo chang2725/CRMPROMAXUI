@@ -427,8 +427,11 @@ const CashflowDashboard = () => {
     Payed_By_Cash: '',
     Pay_By_Online: '',
     Amount_Spent_On_Offers: '',
-    Day_Expense: ''
+    Day_Expense: '',
+    Cash_In_Drawer: '',
+    Cash_Mismatch: ''
   });
+
 
   const [expenseForm, setExpenseForm] = useState({
     Expense_Date: new Date().toISOString().split('T')[0],
@@ -480,7 +483,7 @@ const CashflowDashboard = () => {
       console.error('Failed to fetch vendors:', error);
       showNotification('error', 'Error loading vendor list. Please try again.');
     }
-  },[API_BASE_URL]);
+  }, [API_BASE_URL]);
   const fetchExpenseData = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/Cashflow/expense`);
@@ -497,9 +500,9 @@ const CashflowDashboard = () => {
       }
     } catch (error) {
       console.error('Failed to fetch vendors:', error);
-      showNotification('error', 'Error loading vendor list. Please try again.');
+      showNotification('error', 'Error expense list. Please try again.');
     }
-  },[API_BASE_URL]);
+  }, [API_BASE_URL]);
   const fetchDayendData = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/Cashflow/dayend_entry`);
@@ -516,9 +519,9 @@ const CashflowDashboard = () => {
       }
     } catch (error) {
       console.error('Failed to fetch vendors:', error);
-      showNotification('error', 'Error loading vendor list. Please try again.');
+      showNotification('error', 'Error loading dayend_entry. Please try again.');
     }
-  },[API_BASE_URL]);
+  }, [API_BASE_URL]);
   const fetchBorrowedData = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/Cashflow/borrowed_lend_amount`);
@@ -537,7 +540,7 @@ const CashflowDashboard = () => {
       console.error('Failed to fetch vendors:', error);
       showNotification('error', 'Error loading borrowed_lend_amount list. Please try again.');
     }
-  },[API_BASE_URL]);
+  }, [API_BASE_URL]);
   const fetchProduceData = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/Cashflow/GetProduce_To_Buy`);
@@ -556,7 +559,37 @@ const CashflowDashboard = () => {
       console.error('Failed to fetch vendors:', error);
       showNotification('error', 'Error loading ProduceData list. Please try again.');
     }
-  },[API_BASE_URL]);
+  }, [API_BASE_URL]);
+  const fetchDayendDataentry = useCallback(async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/Dashboard/dayenddata`);
+    const data = await response.json(); // 👈 you missed this
+
+    const apiData = data.data[0]; // Corrected this to data.data[0]
+
+    setDayendForm({
+      DATE: new Date().toISOString().split('T')[0],
+      Total_Sales_Amount: apiData.total_bill_amount || 0,
+      Payed_By_Cash: '',
+      Pay_By_Online: '',
+      Amount_Spent_On_Offers: apiData.Amount_Spent_On_offers || 0,
+      Day_Expense: apiData.Expense_Amount || 0,
+      Cash_In_Drawer: '',
+      Cash_Mismatch: ''
+    });
+  } catch (error) {
+    console.error('Failed to fetch dayend data:', error);
+    showNotification('error', 'Failed to load Day End Data');
+  }
+}, [API_BASE_URL]); // ✅ Add any external deps here
+useEffect(() => {
+  if (activeModal === 'dayend') {
+    fetchDayendDataentry();
+  }
+}, [activeModal, fetchDayendDataentry]);
+
+
+
   useEffect(() => {
     fetchVendors();
     fetchExpenseData();
@@ -633,6 +666,20 @@ const CashflowDashboard = () => {
   const handleSubmit = async (endpoint, data, isFormData = false) => {
     setIsLoading(true);
     try {
+
+      if(endpoint === 'dayend') {
+      const submitData = {
+  summary_date: dayendForm.DATE,
+  total_sales: parseFloat(dayendForm.Total_Sales_Amount) || 0,
+  paid_online: parseFloat(dayendForm.Pay_By_Online) || 0,
+  paid_cash: parseFloat(dayendForm.Payed_By_Cash) || 0,
+  expenses: parseFloat(dayendForm.Day_Expense) || 0,
+  discount_amount: parseFloat(dayendForm.Amount_Spent_On_Offers) || 0,
+  cash_in_drawer: parseFloat(dayendForm.Cash_In_Drawer) || 0,
+  cash_mismatch: parseFloat(dayendForm.Cash_Mismatch) || 0
+};
+        data = submitData;
+      }
       const options = {
         method: endpoint === 'expanse' ? 'PATCH' : 'POST',
         headers: isFormData ? {} : { 'Content-Type': 'application/json' },
@@ -764,7 +811,6 @@ const CashflowDashboard = () => {
       alert('Something went wrong');
     }
   };
-
   const handleDeleteProduce = async (id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/Cashflow/DeleteProduce_To_Buy/${id}`, {
@@ -996,69 +1042,103 @@ const CashflowDashboard = () => {
         )}
       </div>
 
-      {/* Day End Modal */}
-      {activeModal === 'dayend' && (
-        <Modal title="Day End Entry" onClose={closeModal}>
-          <div>
-            <InputField
-              label="Date"
-              type="date"
-              value={dayendForm.DATE}
-              onChange={(e) => setDayendForm({ ...dayendForm, DATE: e.target.value })}
-              required
-              error={formErrors.DATE}
-            />
-            <InputField
-              label="Total Sales Amount"
-              type="number"
-              step="1"
-              value={dayendForm.Total_Sales_Amount}
-              onChange={(e) => setDayendForm({ ...dayendForm, Total_Sales_Amount: e.target.value })}
-              required
-              error={formErrors.Total_Sales_Amount}
-            />
-            <InputField
-              label="Paid by Cash"
-              type="number"
-              step="1"
-              value={dayendForm.Payed_By_Cash}
-              onChange={(e) => setDayendForm({ ...dayendForm, Payed_By_Cash: e.target.value })}
-              error={formErrors.Payed_By_Cash}
-            />
-            <InputField
-              label="Paid by Online"
-              type="number"
-              step="1"
-              value={dayendForm.Pay_By_Online}
-              onChange={(e) => setDayendForm({ ...dayendForm, Pay_By_Online: e.target.value })}
-              error={formErrors.Pay_By_Online}
-            />
-            <InputField
-              label="Amount Spent on Offers"
-              type="number"
-              step="1"
-              value={dayendForm.Amount_Spent_On_Offers}
-              onChange={(e) => setDayendForm({ ...dayendForm, Amount_Spent_On_Offers: e.target.value })}
-              error={formErrors.Amount_Spent_On_Offers}
-            />
-            <InputField
-              label="Day Expense"
-              type="number"
-              step="1"
-              value={dayendForm.Day_Expense}
-              onChange={(e) => setDayendForm({ ...dayendForm, Day_Expense: e.target.value })}
-              error={formErrors.Day_Expense}
-            />
-            <button
-              onClick={handleDayendSubmit}
-              disabled={isLoading}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Saving...' : 'Save Day End Entry'}
-            </button>
-          </div>
-        </Modal>
-      )}
+  {activeModal === 'dayend' && (
+  <Modal title="Day End Entry" onClose={closeModal}>
+    <div>
+      <InputField
+        label="Date"
+        type="date"
+        value={dayendForm.DATE}
+        onChange={(e) => setDayendForm({ ...dayendForm, DATE: e.target.value })}
+        required
+        error={formErrors.DATE}
+      />
+
+      {/* Total Sales - Read Only */}
+      <InputField
+        label="Total Sales Amount"
+        type="number"
+        step="1"
+        value={dayendForm.Total_Sales_Amount}
+        readOnly
+      />
+
+      {/* Paid by Online - User Inputs */}
+      <InputField
+        label="Paid by Online"
+        type="number"
+        step="1"
+        value={dayendForm.Pay_By_Online}
+        onChange={(e) => {
+          const online = parseFloat(e.target.value) || 0;
+          const cash = parseFloat(dayendForm.Payed_By_Cash) || 0;
+          const mismatch = (online + cash) - (parseFloat(dayendForm.Total_Sales_Amount) || 0)  ;
+          setDayendForm({
+            ...dayendForm,
+            Pay_By_Online: e.target.value,
+            Cash_Mismatch: mismatch
+          });
+        }}
+        error={formErrors.Pay_By_Online}
+      />
+
+      {/* Paid by Cash - User Inputs */}
+      <InputField
+        label="Paid by Cash"
+        type="number"
+        step="1"
+        value={dayendForm.Payed_By_Cash}
+        onChange={(e) => {
+          const cash = parseFloat(e.target.value) || 0;
+          const online = parseFloat(dayendForm.Pay_By_Online) || 0;
+          const mismatch = (online + cash) - (parseFloat(dayendForm.Total_Sales_Amount) || 0) ;
+          setDayendForm({
+            ...dayendForm,
+            Payed_By_Cash: e.target.value,
+            Cash_Mismatch: mismatch
+          });
+        }}
+        error={formErrors.Payed_By_Cash}
+      />
+
+      {/* Amount Spent on Offers - Read Only */}
+      <InputField
+        label="Amount Spent on Offers"
+        type="number"
+        step="1"
+        value={dayendForm.Amount_Spent_On_Offers}
+        readOnly
+      />
+
+      {/* Day Expense - Read Only */}
+      <InputField
+        label="Day Expense"
+        type="number"
+        step="1"
+        value={dayendForm.Day_Expense}
+        readOnly
+      />
+
+      {/* Cash Mismatch - Auto Calculated */}
+      <InputField
+        label="Cash Mismatch (Auto)"
+        type="number"
+        step="1"
+        value={dayendForm.Cash_Mismatch}
+        readOnly
+      />
+
+      <button
+        onClick={handleDayendSubmit}
+        disabled={isLoading}
+        className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isLoading ? 'Saving...' : 'Save Day End Entry'}
+      </button>
+    </div>
+  </Modal>
+)}
+
 
       {/* Expense Modal */}
       {activeModal === 'expense' && (
